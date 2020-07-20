@@ -159,14 +159,10 @@
 <span id="159">159</span>
 <span id="160">160</span>
 <span id="161">161</span>
-<span id="162">162</span>
-<span id="163">163</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">super</span>::{
-    <span class="kw">super</span>::{
-        <span class="ident">error</span>::{<span class="ident">Error</span>, <span class="prelude-ty">Result</span>},
-        <span class="ident">stage</span>::<span class="ident">Stage</span>,
-    },
+    <span class="kw">super</span>::<span class="ident">stage</span>::<span class="ident">Stage</span>,
+    <span class="ident">error</span>::{<span class="ident">Error</span>, <span class="prelude-ty">Result</span>},
     <span class="ident">heartbeat</span>::{<span class="ident">Heartbeater</span>, <span class="ident">Heartbeats</span>},
 };
 <span class="kw">use</span> <span class="ident">futures_channel</span>::<span class="ident">mpsc</span>::<span class="ident">UnboundedSender</span>;

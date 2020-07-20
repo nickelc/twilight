@@ -106,75 +106,9 @@
 <span id="106">106</span>
 <span id="107">107</span>
 <span id="108">108</span>
-<span id="109">109</span>
-<span id="110">110</span>
-<span id="111">111</span>
-<span id="112">112</span>
-<span id="113">113</span>
-<span id="114">114</span>
-<span id="115">115</span>
-<span id="116">116</span>
-<span id="117">117</span>
-<span id="118">118</span>
-<span id="119">119</span>
-<span id="120">120</span>
-<span id="121">121</span>
-<span id="122">122</span>
-<span id="123">123</span>
-<span id="124">124</span>
-<span id="125">125</span>
-<span id="126">126</span>
-<span id="127">127</span>
-<span id="128">128</span>
-<span id="129">129</span>
-<span id="130">130</span>
-<span id="131">131</span>
-<span id="132">132</span>
-<span id="133">133</span>
-<span id="134">134</span>
-<span id="135">135</span>
-<span id="136">136</span>
-<span id="137">137</span>
-<span id="138">138</span>
-<span id="139">139</span>
-<span id="140">140</span>
-<span id="141">141</span>
-<span id="142">142</span>
-<span id="143">143</span>
-<span id="144">144</span>
-<span id="145">145</span>
-<span id="146">146</span>
-<span id="147">147</span>
-<span id="148">148</span>
-<span id="149">149</span>
-<span id="150">150</span>
-<span id="151">151</span>
-<span id="152">152</span>
-<span id="153">153</span>
-<span id="154">154</span>
-<span id="155">155</span>
-<span id="156">156</span>
-<span id="157">157</span>
-<span id="158">158</span>
-<span id="159">159</span>
-<span id="160">160</span>
-<span id="161">161</span>
-<span id="162">162</span>
-<span id="163">163</span>
-<span id="164">164</span>
-<span id="165">165</span>
-<span id="166">166</span>
-<span id="167">167</span>
-<span id="168">168</span>
-<span id="169">169</span>
-<span id="170">170</span>
-<span id="171">171</span>
-<span id="172">172</span>
-<span id="173">173</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! The error type of why errors occur in the shard module.</span>
 
-<span class="kw">use</span> <span class="ident">flate2</span>::<span class="ident">DecompressError</span>;
 <span class="kw">use</span> <span class="ident">futures_channel</span>::<span class="ident">mpsc</span>::<span class="ident">TrySendError</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde_json&quot;</span>, <span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;simd-json&quot;</span>)))]</span>
 <span class="kw">use</span> <span class="ident">serde_json</span>::<span class="ident">Error</span> <span class="kw">as</span> <span class="ident">JsonError</span>;
@@ -186,11 +120,10 @@
     <span class="ident">error</span>::<span class="ident">Error</span> <span class="kw">as</span> <span class="ident">StdError</span>,
     <span class="ident">fmt</span>::{<span class="ident">Display</span>, <span class="ident">Formatter</span>, <span class="prelude-ty">Result</span> <span class="kw">as</span> <span class="ident">FmtResult</span>},
     <span class="ident">result</span>::<span class="prelude-ty">Result</span> <span class="kw">as</span> <span class="ident">StdResult</span>,
-    <span class="ident">str</span>::<span class="ident">Utf8Error</span>,
 };
 <span class="kw">use</span> <span class="ident">twilight_http</span>::<span class="ident">Error</span> <span class="kw">as</span> <span class="ident">HttpError</span>;
-<span class="kw">use</span> <span class="ident">twilight_model</span>::<span class="ident">gateway</span>::<span class="ident">GatewayIntents</span>;
-<span class="kw">use</span> <span class="ident">url</span>::<span class="ident">ParseError</span>;
+
+<span class="kw">use</span> <span class="kw">super</span>::<span class="ident">processor</span>::<span class="ident">Error</span> <span class="kw">as</span> <span class="ident">ProcessorError</span>;
 
 <span class="doccomment">/// A result enum with the error type being the shard&#39;s [`Error`] type.</span>
 <span class="doccomment">///</span>
@@ -201,8 +134,11 @@
 <span class="doccomment">/// shard.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Error</span> {
-    <span class="doccomment">/// The provided authorization token is invalid.</span>
-    <span class="ident">AuthorizationInvalid</span> { <span class="ident">shard_id</span>: <span class="ident">u64</span>, <span class="ident">token</span>: <span class="ident">String</span> },
+    <span class="doccomment">/// An error happened while creating a shard processor.</span>
+    <span class="ident">Processor</span> {
+        <span class="doccomment">/// The error from the shard processor.</span>
+        <span class="ident">source</span>: <span class="ident">ProcessorError</span>,
+    },
     <span class="doccomment">/// An error happened while trying to connect to the gateway.</span>
     <span class="ident">Connecting</span> {
         <span class="doccomment">/// The error from the WebSocket client.</span>
@@ -220,47 +156,10 @@
         <span class="doccomment">/// The total number of shards in use.</span>
         <span class="ident">total</span>: <span class="ident">u64</span>,
     },
-    <span class="doccomment">/// The current user isn&#39;t allowed to use at least one of the configured</span>
-    <span class="doccomment">/// intents.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The intents are provided.</span>
-    <span class="ident">IntentsDisallowed</span> {
-        <span class="doccomment">/// The configured intents for the shard.</span>
-        <span class="ident">intents</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">GatewayIntents</span><span class="op">&gt;</span>,
-        <span class="doccomment">/// The ID of the shard.</span>
-        <span class="ident">shard_id</span>: <span class="ident">u64</span>,
-    },
-    <span class="doccomment">/// The configured intents aren&#39;t supported by Discord&#39;s gateway.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The intents are provided.</span>
-    <span class="ident">IntentsInvalid</span> {
-        <span class="doccomment">/// The configured intents for the shard.</span>
-        <span class="ident">intents</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">GatewayIntents</span><span class="op">&gt;</span>,
-        <span class="doccomment">/// The ID of the shard.</span>
-        <span class="ident">shard_id</span>: <span class="ident">u64</span>,
-    },
     <span class="doccomment">/// The &quot;large threshold&quot; value was too large or too small.</span>
     <span class="ident">LargeThresholdInvalid</span> {
         <span class="doccomment">/// The value that is invalid.</span>
         <span class="ident">value</span>: <span class="ident">u64</span>,
-    },
-    <span class="doccomment">/// Parsing the URL to connect to the gateway failed due to an invalid URL.</span>
-    <span class="ident">ParsingUrl</span> {
-        <span class="doccomment">/// The reason for the parse failing.</span>
-        <span class="ident">source</span>: <span class="ident">ParseError</span>,
-        <span class="doccomment">/// The URL that couldn&#39;t be parsed.</span>
-        <span class="ident">url</span>: <span class="ident">String</span>,
-    },
-    <span class="doccomment">/// The payload received from Discord was an invalid structure.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The payload was either invalid JSON or did not contain the necessary</span>
-    <span class="doccomment">/// &quot;op&quot; key in the object.</span>
-    <span class="ident">PayloadInvalid</span>,
-    <span class="doccomment">/// The binary payload received from Discord wasn&#39;t validly encoded as</span>
-    <span class="doccomment">/// UTF-8.</span>
-    <span class="ident">PayloadNotUtf8</span> {
-        <span class="doccomment">/// Source error when converting to a UTF-8 valid string.</span>
-        <span class="ident">source</span>: <span class="ident">Utf8Error</span>,
     },
     <span class="doccomment">/// There was an error serializing or deserializing a payload.</span>
     <span class="ident">PayloadSerialization</span> {
@@ -275,44 +174,22 @@
     },
     <span class="doccomment">/// The shard hasn&#39;t been started, so there is no active session.</span>
     <span class="ident">Stopped</span>,
-    <span class="doccomment">/// There was a error decompressing a frame from discord.</span>
-    <span class="ident">Decompressing</span> { <span class="ident">source</span>: <span class="ident">DecompressError</span> },
 }
 
 <span class="kw">impl</span> <span class="ident">Display</span> <span class="kw">for</span> <span class="ident">Error</span> {
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">FmtResult</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="self">Self</span>::<span class="ident">AuthorizationInvalid</span> { <span class="ident">shard_id</span>, .. } <span class="op">=&gt;</span> <span class="macro">write</span><span class="macro">!</span>(
-                <span class="ident">f</span>,
-                <span class="string">&quot;The authorization token for shard {} is invalid&quot;</span>,
-                <span class="ident">shard_id</span>
-            ),
+            <span class="self">Self</span>::<span class="ident">Processor</span> { .. } <span class="op">=&gt;</span> <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;An issue occured creating a shard processor&quot;</span>),
             <span class="self">Self</span>::<span class="ident">Connecting</span> { .. } <span class="op">=&gt;</span> <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;An issue occurred connecting to the gateway&quot;</span>),
             <span class="self">Self</span>::<span class="ident">GettingGatewayUrl</span> { .. } <span class="op">=&gt;</span> <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;Getting the gateway URL failed&quot;</span>),
             <span class="self">Self</span>::<span class="ident">IdTooLarge</span> { <span class="ident">id</span>, <span class="ident">total</span> } <span class="op">=&gt;</span> {
                 <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;The shard ID {} is larger than the total, {}&quot;</span>, <span class="ident">id</span>, <span class="ident">total</span>)
             }
-            <span class="self">Self</span>::<span class="ident">IntentsDisallowed</span> { <span class="ident">intents</span>, <span class="ident">shard_id</span> } <span class="op">=&gt;</span> <span class="macro">write</span><span class="macro">!</span>(
-                <span class="ident">f</span>,
-                <span class="string">&quot;At least one of the intents ({:?}) for shard {} are disallowed&quot;</span>,
-                <span class="ident">intents</span>, <span class="ident">shard_id</span>
-            ),
-            <span class="self">Self</span>::<span class="ident">IntentsInvalid</span> { <span class="ident">intents</span>, <span class="ident">shard_id</span> } <span class="op">=&gt;</span> <span class="macro">write</span><span class="macro">!</span>(
-                <span class="ident">f</span>,
-                <span class="string">&quot;At least one of the intents ({:?}) for shard {} are invalid&quot;</span>,
-                <span class="ident">intents</span>, <span class="ident">shard_id</span>
-            ),
             <span class="self">Self</span>::<span class="ident">LargeThresholdInvalid</span> { <span class="ident">value</span> } <span class="op">=&gt;</span> <span class="macro">write</span><span class="macro">!</span>(
                 <span class="ident">f</span>,
                 <span class="string">&quot;The large threshold given, {}, is not in the accepted range&quot;</span>,
                 <span class="ident">value</span>
             ),
-            <span class="self">Self</span>::<span class="ident">ParsingUrl</span> { <span class="ident">url</span>, .. } <span class="op">=&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;The gateway URL {:?} is invalid&quot;</span>, <span class="ident">url</span>),
-            <span class="self">Self</span>::<span class="ident">PayloadInvalid</span> { .. } <span class="op">=&gt;</span> <span class="macro">write</span><span class="macro">!</span>(
-                <span class="ident">f</span>,
-                <span class="string">&quot;The payload received from Discord contained an invalid data structure&quot;</span>
-            ),
-            <span class="self">Self</span>::<span class="ident">PayloadNotUtf8</span> { .. } <span class="op">=&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;The payload from Discord wasn&#39;t UTF-8 valid&quot;</span>),
             <span class="self">Self</span>::<span class="ident">PayloadSerialization</span> { .. } <span class="op">=&gt;</span> {
                 <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;Deserializing or serializing a payload failed&quot;</span>)
             }
@@ -320,7 +197,6 @@
                 <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;The message couldn&#39;t be sent because the receiver half dropped&quot;</span>)
             }
             <span class="self">Self</span>::<span class="ident">Stopped</span> { .. } <span class="op">=&gt;</span> <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;the shard hasn&#39;t been started yet&quot;</span>),
-            <span class="self">Self</span>::<span class="ident">Decompressing</span> { .. } <span class="op">=&gt;</span> <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="string">&quot;A frame could not be decompressed&quot;</span>),
         }
     }
 }
@@ -328,20 +204,14 @@
 <span class="kw">impl</span> <span class="ident">StdError</span> <span class="kw">for</span> <span class="ident">Error</span> {
     <span class="kw">fn</span> <span class="ident">source</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>(<span class="kw">dyn</span> <span class="ident">StdError</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>)<span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
+            <span class="self">Self</span>::<span class="ident">Processor</span> { <span class="ident">source</span> } <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">source</span>),
             <span class="self">Self</span>::<span class="ident">Connecting</span> { <span class="ident">source</span> } <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">source</span>),
             <span class="self">Self</span>::<span class="ident">GettingGatewayUrl</span> { <span class="ident">source</span> } <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">source</span>),
-            <span class="self">Self</span>::<span class="ident">ParsingUrl</span> { <span class="ident">source</span>, .. } <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">source</span>),
-            <span class="self">Self</span>::<span class="ident">PayloadNotUtf8</span> { <span class="ident">source</span> } <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">source</span>),
             <span class="self">Self</span>::<span class="ident">PayloadSerialization</span> { <span class="ident">source</span> } <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">source</span>),
             <span class="self">Self</span>::<span class="ident">SendingMessage</span> { <span class="ident">source</span> } <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">source</span>),
-            <span class="self">Self</span>::<span class="ident">Decompressing</span> { <span class="ident">source</span> } <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">source</span>),
-            <span class="self">Self</span>::<span class="ident">AuthorizationInvalid</span> { .. }
-            <span class="op">|</span> <span class="self">Self</span>::<span class="ident">IdTooLarge</span> { .. }
-            <span class="op">|</span> <span class="self">Self</span>::<span class="ident">IntentsDisallowed</span> { .. }
-            <span class="op">|</span> <span class="self">Self</span>::<span class="ident">IntentsInvalid</span> { .. }
-            <span class="op">|</span> <span class="self">Self</span>::<span class="ident">LargeThresholdInvalid</span> { .. }
-            <span class="op">|</span> <span class="self">Self</span>::<span class="ident">PayloadInvalid</span> { .. }
-            <span class="op">|</span> <span class="self">Self</span>::<span class="ident">Stopped</span> { .. } <span class="op">=&gt;</span> <span class="prelude-val">None</span>,
+            <span class="self">Self</span>::<span class="ident">IdTooLarge</span> { .. } <span class="op">|</span> <span class="self">Self</span>::<span class="ident">LargeThresholdInvalid</span> { .. } <span class="op">|</span> <span class="self">Self</span>::<span class="ident">Stopped</span> { .. } <span class="op">=&gt;</span> {
+                <span class="prelude-val">None</span>
+            }
         }
     }
 }

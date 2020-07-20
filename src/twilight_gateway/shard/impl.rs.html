@@ -356,6 +356,8 @@
 <span id="356">356</span>
 <span id="357">357</span>
 <span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">super</span>::{
     <span class="ident">config</span>::<span class="ident">ShardConfig</span>,
@@ -506,9 +508,11 @@
             .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">source</span><span class="op">|</span> <span class="ident">Error</span>::<span class="ident">GettingGatewayUrl</span> { <span class="ident">source</span> })<span class="question-mark">?</span>
             .<span class="ident">url</span>;
 
+        <span class="kw">let</span> <span class="ident">config</span> <span class="op">=</span> <span class="ident">Arc</span>::<span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>.<span class="ident">config</span>);
         <span class="kw">let</span> <span class="ident">listeners</span> <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">listeners</span>.<span class="ident">clone</span>();
-        <span class="kw">let</span> (<span class="ident">processor</span>, <span class="ident">wrx</span>) <span class="op">=</span>
-            <span class="ident">ShardProcessor</span>::<span class="ident">new</span>(<span class="ident">Arc</span>::<span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>.<span class="ident">config</span>), <span class="ident">url</span>, <span class="ident">listeners</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let</span> (<span class="ident">processor</span>, <span class="ident">wrx</span>) <span class="op">=</span> <span class="ident">ShardProcessor</span>::<span class="ident">new</span>(<span class="ident">config</span>, <span class="ident">url</span>, <span class="ident">listeners</span>)
+            .<span class="kw">await</span>
+            .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">source</span><span class="op">|</span> <span class="ident">Error</span>::<span class="ident">Processor</span> { <span class="ident">source</span> })<span class="question-mark">?</span>;
         <span class="kw">let</span> (<span class="ident">fut</span>, <span class="ident">handle</span>) <span class="op">=</span> <span class="ident">future</span>::<span class="ident">abortable</span>(<span class="ident">processor</span>.<span class="ident">run</span>());
 
         <span class="ident">tokio</span>::<span class="ident">spawn</span>(<span class="kw">async</span> <span class="kw">move</span> {
